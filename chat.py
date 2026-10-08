@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from pathlib import Path
 import anthropic
 
 # Load the API key from .env and create the client
@@ -6,8 +7,7 @@ load_dotenv()
 client = anthropic.Anthropic()
 
 # The bot's personality and rules
-# The bot's personality and rules
-SYSTEM_PROMPT = """You are a customer support agent for an online sneaker store.
+SYSTEM_PROMPT = """You are a customer support agent for SneakerHut, an online sneaker store.
 
 Rules:
 - Keep answers short: 2-4 sentences.
@@ -16,7 +16,13 @@ Rules:
   say you'll check with the team.
 - Be friendly, but get to the point."""
 
-# The conversation history (this is the bot's "memory")
+# Read every .md file in docs/ and add it to the system prompt
+docs_text = ""
+for doc in sorted(Path("docs").glob("*.md")):
+    docs_text += f"\n\n--- {doc.name} ---\n{doc.read_text()}"
+
+SYSTEM_PROMPT += "\n\nUse ONLY the store information below to answer:" + docs_text
+
 messages = []
 
 print("Support bot ready! Type 'quit' to exit.\n")
